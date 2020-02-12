@@ -58,6 +58,11 @@ function Clear-Branches {
     $branches += $line.ToString().trim()
   }
 
+  if ($branches.Length -eq 0) {
+    Write-Host "[-] No branches found that could be deleted, exiting..."
+    return
+  }
+
   if ($soft) {
     Write-Host "[+] Starting in SOFT mode..."
     foreach ($branch in $branches) {
