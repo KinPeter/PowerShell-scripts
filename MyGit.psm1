@@ -27,6 +27,25 @@ function Get-BranchByIssue {
   git pull origin $path
 }
 
+function Get-LocalBranchByIssue {
+  [CmdletBinding()]
+  [Alias("mygit-col")]
+  param(
+    [Parameter(Mandatory = $true)][string]$issueNumber
+  )
+
+  $branches = git branch
+  $foundBranches = $branches | Select-String -Pattern $issueNumber
+
+  if ($foundBranches.length -lt 1) {
+    Write-Host "No such branch found."
+    return 
+  }
+  $path = $foundBranches[0].ToString().trim()
+
+  git checkout $path
+}
+
 function Clear-Branches {
   [CmdletBinding(DefaultParameterSetName = "Normal")]
   [Alias("mygit-clup")]
