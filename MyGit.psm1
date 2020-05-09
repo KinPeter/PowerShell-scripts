@@ -1,124 +1,79 @@
 function Get-BranchByIssue {
   [CmdletBinding()]
-  [Alias("mygit-co")]
+  [Alias("git-co")]
   param(
     [Parameter(Mandatory=$true)][string]$issueNumber
   )
 
-  $branches = git branch -a
-  $foundBranches = $branches | Select-String -Pattern $issueNumber
+  $branch = git branch -a | grep -m 1 $issueNumber
 
-  if ($foundBranches.length -lt 1) {
-    Write-Host "No such branch found."
+  if ($branch.length -lt 1) {
+    Write-Host "[-] No such branch found." -ForegroundColor "red"
     return 
-  } elseif ($foundBranches.length -gt 1) {
-    $path = $foundBranches[0].ToString().trim()
-  } else {
-    $remoteOnly = $foundBranches[0] -Match "remotes/origin"
-    if ($remoteOnly) {
-      $pathSplitted = $foundBranches[0] -split "/"
-      $path = $pathSplitted[2] + "/" + $pathSplitted[3]
-    } else {
-      $path = $foundBranches[0].ToString().trim()
-    }
   }
-
+  if ($branch -Match "remotes/origin") {
+    $path = $branch.Substring(17)
+  } else {
+    $path = $branch.Substring(2)
+  }
+  Write-Host "[+] Changing to branch $path ... `n" -ForegroundColor "green"
   git checkout $path
-  git pull origin $path
 }
 
-function Get-LocalBranchByIssue {
+function Get-BranchForReview {
   [CmdletBinding()]
-  [Alias("mygit-col")]
+  [Alias("git-review")]
   param(
     [Parameter(Mandatory = $true)][string]$issueNumber
   )
 
-  $branches = git branch
-  $foundBranches = $branches | Select-String -Pattern $issueNumber
+  Write-Host "`n[+] Fetching from origin... `n" -ForegroundColor "green"
+  git fetch
 
-  if ($foundBranches.length -lt 1) {
-    Write-Host "No such branch found."
-    return 
+  $branch = git branch -a | grep -m 1 $issueNumber
+
+  if ($branch.length -lt 1) {
+    Write-Host "[-] No such branch found." -ForegroundColor "red"
+    return 1
   }
-  $path = $foundBranches[0].ToString().trim()
 
-  git checkout $path
+  if ($branch -Match "remotes/origin") {
+    $path = $branch.Substring(10)
+    Write-Host "`n[+] Changing to remote branch $path ...`n" -ForegroundColor "green"
+    git checkout $path
+  }
+  else {
+    Write-Host "[-] Branch is checked out locally." -ForegroundColor "red"
+    return 1
+  }
+  return 0
 }
 
-function Clear-Branches {
-  [CmdletBinding(DefaultParameterSetName = "Normal")]
-  [Alias("mygit-clup")]
+function Start-McdaReview {
+  [CmdletBinding()]
+  [Alias("mcda-review")]
   param(
-    [parameter(ParameterSetName = "Normal")]
-    [Alias("n")]
-    [switch]
-    $normal,
-    
-    [parameter(ParameterSetName = "Soft")]
-    [Alias("s")]
-    [switch]
-    $soft,
-
-    [parameter(ParameterSetName = "Forced")]
-    [Alias("f")]
-    [switch]
-    $forced
+    [Parameter(Mandatory = $true)][string]$issueNumber
   )
 
-  if ( -Not $normal -and -Not $soft -and -Not $forced ) {
-    $normal = $true
-  }
+  $branchResult = Get-BranchForReview($issueNumber)
 
-  $gitBranch = git branch
-  [string[]]$branches = @()
-  foreach($line in $gitBranch) {
-    if ($line.ToString().StartsWith("*") -or ($line.ToString().trim() -eq "master") -or ($line.ToString().trim() -eq "develop")) { continue }
-    $branches += $line.ToString().trim()
-  }
-
-  if ($branches.Length -eq 0) {
-    Write-Host "[-] No branches found that could be deleted, exiting..."
+  if ($branchResult -eq 1) {
     return
   }
+  
+  Write-Host "`n[+] Running automated tests... `n" -ForegroundColor "green"
+  npm run test
 
-  if ($soft) {
-    Write-Host "[+] Starting in SOFT mode..."
-    foreach ($branch in $branches) {
-      $response = git branch -d $branch 2>&1
-      if ($response -Match "not fully merged") {
-        Write-Host "[Kept branch] $branch"
-      } else {
-        Write-Host "[Deleted branch] $branch"
-      }
-    }  
-  }
+  Write-Host "`n[+] Running linters... `n" -ForegroundColor "green"
+  npm run lint
+}
 
-  if ($forced) {
-    Write-Host "[+] Starting in FORCED mode..."
-    foreach ($branch in $branches) {
-      $response = git branch -D $branch 
-      Write-Host "[Deleted branch] $branch"      
-    }  
-  }
-
-  if ($normal) {
-    Write-Host "[+] Starting in NORMAL mode..."
-    foreach ($branch in $branches) {
-      $response = git branch -d $branch 2>&1
-      if ($response -Match "not fully merged") {
-        Write-Host "[-] Could not delete $branch"
-        $answer = Read-Host "[?] Do you want to force delete it? (Y/n)"
-        if ($answer -eq "N" -or $answer -eq "n") {
-          Write-Host "[Kept branch] $branch"
-        } else {
-          $response = git branch -D $branch 
-          Write-Host "[Deleted branch] $branch"
-        }
-      }
-      else {
-        Write-Host "[Deleted branch] $branch"
-      }
-    }  
-  }
+function Start-PullFromOrigin {
+  [CmdletBinding()]
+  [Alias("git-pulo")]
+  param ()
+  $branch = git rev-parse --abbrev-ref HEAD
+  Write-Host "[+] Pulling $branch from origin..." -ForegroundColor "green"
+  git pull origin $branch
 }
