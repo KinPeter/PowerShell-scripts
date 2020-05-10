@@ -37,3 +37,6 @@ function Set-SshToWork() {
     Write-Host "[-] Couldn't change default SSH key" -ForegroundColor "red"
   }
 }
+
+# source for linux like ls output
+# https://superuser.com/questions/1325217/how-to-produce-a-linux-like-ls-output-in-powershell/1325363
