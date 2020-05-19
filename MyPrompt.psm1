@@ -21,7 +21,7 @@ function Write-BranchName () {
 
 function Write-GitStatus () {
   $status = git status -s
-  $a = $status | grep -c "^A "
+  $a = $status | egrep -c "^(A |AM) "
   $m = $status | grep -c "^ M"
   $d = $status | grep -c "^ D"
   $u = $status | grep -c "^??"
