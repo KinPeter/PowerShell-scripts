@@ -1,9 +1,15 @@
-## Load module for all shells
+## Load modules, functions, aliases
 
-* Create file:
-`C:\Windows\System32\WindowsPowerShell\v1.0\profile.ps1`
+* Open your PS profile, eg:
+`notepad $profile.CurrentUserCurrentHost`
 
-* Add import, for example:
-`Import-Module C:\path\to\my\module\MyModule.psm1`
+* Set these variables with the corresponding folder paths:
+```
+$PsModulesFolder = "D:\path\to\my\modules"
+$GclupFolder = "C:\path\to\gclup"
+```
 
->If using CMDER: remove the -NoProfile option from startup script
+* Import the index module:
+```
+Import-Module $PsModulesFolder\ModulesIndex.psm1
+```
