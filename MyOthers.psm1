@@ -100,7 +100,7 @@ function Get-Children {
   param (
     $path
   )
-  $ls = Get-ChildItem $path
+  $ls = Get-ChildItem $path -Force
   foreach ($item in $ls) {
     $transformed = Update-ColorOfName($item)
     $item | Add-Member -MemberType NoteProperty -Name TransformedName -Value $transformed
