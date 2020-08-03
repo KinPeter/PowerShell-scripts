@@ -62,8 +62,8 @@ function Start-McdaReview {
     return
   }
   
-  Write-Host "`n[+] Running automated tests... `n" -ForegroundColor "green"
-  npm run test
+  # Write-Host "`n[+] Running automated tests... `n" -ForegroundColor "green"
+  # npm run test
 
   Write-Host "`n[+] Running linters... `n" -ForegroundColor "green"
   npm run lint
