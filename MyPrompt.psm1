@@ -40,7 +40,11 @@ function Write-GitStatus () {
 function prompt {
   $base = "PS "
   $user = "$env:UserName@$env:ComputerName "
-  $path = "$($executionContext.SessionState.Path.CurrentLocation)>"
+  $path = "$($executionContext.SessionState.Path.CurrentLocation)/"
+  $path = $path.Replace($env:UserProfile, "~")
+  $path = $path.Replace("C:\", "")
+  $path = $path.Replace("\", "/")
+
   $userPrompt = "$('$' * ($nestedPromptLevel + 1)) "
 
   Write-Host "`n$base" -NoNewline
