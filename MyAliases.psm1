@@ -12,3 +12,5 @@ Set-Alias -Name git-clean -Value Start-GitCleanup
 
 function Remove-DockerAll { docker rm $(docker ps -a -q) && docker rmi $(docker images -a -q) }
 Set-Alias -Name docker-rma -Value Remove-DockerAll
+
+Set-Alias -Name touch -Value New-Item

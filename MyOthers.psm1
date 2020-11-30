@@ -1,6 +1,6 @@
 function Set-SshToPersonal() {
   [CmdletBinding()]
-  [Alias("ssh-personal")]
+  [Alias("ssh-personal", "ssh-p")]
   param()
 
   try {
@@ -20,7 +20,7 @@ function Set-SshToPersonal() {
 
 function Set-SshToWork() {
   [CmdletBinding()]
-  [Alias("ssh-work")]
+  [Alias("ssh-work", "ssh-w")]
   param()
 
   try {
@@ -106,4 +106,13 @@ function Get-Children {
     $item | Add-Member -MemberType NoteProperty -Name TransformedName -Value $transformed
   }
   return $ls | Format-Wide -AutoSize -Property TransformedName
+}
+
+function Remove-ForceRecurse {
+  [CmdletBinding()]
+  [Alias("rm-rf")]
+  param (
+    $path
+  )
+  Remove-Item -Force -Recurse -Path $path
 }
