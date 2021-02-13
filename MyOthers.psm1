@@ -107,12 +107,3 @@ function Get-Children {
   }
   return $ls | Format-Wide -AutoSize -Property TransformedName
 }
-
-function Remove-ForceRecurse {
-  [CmdletBinding()]
-  [Alias("rm-rf")]
-  param (
-    $path
-  )
-  Remove-Item -Force -Recurse -Path $path
-}

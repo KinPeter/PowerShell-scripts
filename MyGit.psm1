@@ -49,26 +49,6 @@ function Get-BranchForReview {
   return 0
 }
 
-function Start-McdaReview {
-  [CmdletBinding()]
-  [Alias("mcda-review")]
-  param(
-    [Parameter(Mandatory = $true)][string]$issueNumber
-  )
-
-  $branchResult = Get-BranchForReview($issueNumber)
-
-  if ($branchResult -eq 1) {
-    return
-  }
-  
-  # Write-Host "`n[+] Running automated tests... `n" -ForegroundColor "green"
-  # npm run test
-
-  Write-Host "`n[+] Running linters... `n" -ForegroundColor "green"
-  npm run lint
-}
-
 function Start-PullFromOrigin {
   [CmdletBinding()]
   [Alias("git-pulo")]
